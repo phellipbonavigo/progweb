@@ -14,7 +14,7 @@ class UsuariosController extends Controller
 
     }
 
-    function tenta_Login(Request $req){
+    function telaFinal(Request $req){
     	$email = $req->input('email');
     	$senha = $req->input('senha');
 

@@ -19,8 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/paginaInicial',[ClienteController::class,'paginaInicial']);
-Route::post('/tentaLogin',[ClienteController::class,'tentaLogin']); 
+Route::get('/paginaInicial',[ClienteController::class,'paginaInicial'])->name('login');
+Route::post('/telafinal',[ClienteController::class,'telaFinal']);
 
 
 
@@ -31,4 +31,5 @@ Route::get('/cliente/editar/{id}',[ClienteController::class,'editar'])->name('cl
 Route::get('/cliente/excluir/{id}',[ClienteController::class,'excluir'])->name('cliente_excluir');
 Route::get('/cliente/lista',[ClienteController::class, 'tela_principal'])->name('cliente_lista');
 
+Route::get('/cliente/logout',[ClienteController::class, 'logout'])->name('logout');
 

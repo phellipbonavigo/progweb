@@ -3,29 +3,27 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cliente;
+use App\Models\Usuario;
 
 class ClienteController extends Controller
 {
     function paginaInicial(){
 
-    	return view ('pagInicial'); 
+    	return view('pagInicial'); 
 
     }
 
-    function tentaLogin(Request $req){
-
-        $email = $req->input('email');   // verificar o usuário e senha do cliente
+     function telaFinal(Request $req){
+        // verificar usuario e senha
+        $email = $req->input('email');
         $senha = $req->input('senha');
         
         $u = Cliente::where('email', '=', $email)->first();
         $us = Cliente::all();
         
         if ($u && $u->senha == $senha){
-            return view('final', [
-                'resposta' => "Acesso concedido",
-                'tipo_resposta' => 'success',
-                'clientes' => $us
-            ]);
+            session(['login' => $email]);
+            return redirect()->route('cliente_lista');
         } else {
             return view('final', [
                 'resposta' => "Acesso negado",
@@ -34,6 +32,8 @@ class ClienteController extends Controller
             ]);
         }
     }
+
+
     
     function novo(){
         return view('cliente_novo');
@@ -42,43 +42,44 @@ class ClienteController extends Controller
         $nome = $req->input('nome');
         $email = $req->input('email');
         $senha = $req->input('senha');
-        $endereco = $req->input('endereco');
-        $cidade = $req->input('cidade');
-        $cep = $req->input('cep');
-        $estado = $req->input('estado');
+
+
 
         $u = new Cliente();
         $u->nome  =  $nome;
         $u->email  =  $email;
         $u->senha  =  $senha;
-        $u->endereco  =  $endereco;
-        $u->cidade  =  $cidade;
-        $u->cep  =  $cep;
-        $u->estado  =  $estado;
+        $u->endereco = ""; 
+        $u->cep = ""; 
+        $u->estado = ""; 
+        $u->cidade = ""; 
         $u->save();
+
+        session()->flash('mensagem',"O Usuário {$u->nome} foi criado com sucesso"); 
         return redirect()->route('cliente_lista');
     }
     function alterar(Request  $req, $id){
         $u = Cliente::find($id);
         $u->nome = $req->input('nome');
         $u->email = $req->input('email');
-        $u->senha = $req->input('senha');
-        $u->endereco = $req->input('endereco');
-        $u->cidade = $req->input('cidade');
-        $u->cep = $req->input('cep');
-        $u->estado = $req->input('estado');
+        $u->senha = $req->input('senha');;
         $u->save();
+
+        session()->flash('mensagem',"O Usuário {$u->nome} foi alterado com sucesso"); 
+
 
         return redirect()->route('cliente_lista');
 
     }
     function tela_principal(){
-        $us = Cliente::all();
-        return view('final', [
-                'resposta' => "Acesso concedido",
-                'tipo_resposta' => 'success',
-                'cliente' => $us]);
+        if(session()->has('login')) {
+            $us = Cliente::all();
+            return view('final',['resposta'=>"", 'tipo_resposta' => 'success','cliente' => $us
+        ]);
     }
+        return redirect()->route('login');
+    }
+
     function editar($id){
         $u =  Cliente::findOrFail($id);
         return view('cliente_editar',['u' =>$u]);
@@ -86,8 +87,12 @@ class ClienteController extends Controller
     function excluir($id){
         $u = Cliente::findOrFail($id);
         $u->delete();
-        return redirect()->route('cliente_lista');
+        return redirect()->route('cliente_lista');    
 
     }
 
+    function logout(){
+        session()->forget('login');
+        return redirect()->route('login');
+    }
 }
